@@ -5,10 +5,11 @@ const serialport = require('serialport');
 class Arduino extends events.EventEmitter {
     constructor(opts) {
         super();
-        this.setState('disconnected'); // Start the state machine
+        this.update('disconnected'); // Start the state machine
     }
 
-    setState(state, data) {
+    update(state, data) {
+        this.state = state;
         switch(state) {
         case 'disconnected':
             setTimeout(this._findArduinoComPort.bind(this), 1000);
@@ -34,18 +35,19 @@ class Arduino extends events.EventEmitter {
         console.log('Looking for a serial port with an Arduino connected to it.');
         serialport.list(function (err, ports) {
             if (err) {
-                self.setState('error');
+                self.update('error');
                 return; // Retry after a delay
             }
-            var success = ports.some(function(port) {
+            let port = ports.find( (port) => {
                 if (port.manufacturer && port.manufacturer.match(/Arduino/gi) !== null) {
                     console.log('Arduino on serial port %s.', port.comName);
-                    self.setState('discovered', {comName: port.comName});
                     return true;
                 }
             });
-            if (!success) {
-                self.setState('disconnected');
+            if (port) {
+                self.update('discovered', {comName: port.comName});
+            } else {
+                self.update('disconnected');
             }
         });
     }
@@ -59,7 +61,7 @@ class Arduino extends events.EventEmitter {
         let self = this;
         this.serialPort.on('open', function() {
             console.log('Serial communication with device %s is open.', self.device);
-            self.setState('connected');
+            self.update('connected');
 
             self.serialPort.on('data', function(data) {
                 self.sendToServer(data);
@@ -67,12 +69,12 @@ class Arduino extends events.EventEmitter {
 
             self.serialPort.on('close', function() {
                 console.log('Serial communication with device %s has been closed.', self.device);
-                self.setState('closed');
+                self.update('closed');
             });
 
             self.serialPort.on('error', function() {
                 console.log('Serial communication with device %s has failed.', self.device);
-                self.setState('error');
+                self.update('error');
             });
         });
     }
@@ -80,13 +82,13 @@ class Arduino extends events.EventEmitter {
     sendToServer(data) {
         let obj;
         try {
+            // console.log('Data received from Arduino:', data);
             obj = JSON.parse(data);
-            console.log('Data received from Arduino:', data);
         } catch(err) {
             console.log('Invalid data received from Arduino:', data);
         }
         if (obj) {
-            console.log('Data sent to server:', obj);
+            // console.log('Data sent to server:', obj);
             this.emit('data', obj);
         }
     }
