@@ -1,0 +1,28 @@
+{
+    "name": "ThingSpeak-Sunshine",
+    "version": "0.0.1",
+    "description": "Sends light intensity data to ThingSpeak channel",
+    "author": {
+        "name": "Bora Eryilmaz"
+    },
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/BoraE/Kolekt.git"
+    },
+    "devDependencies": {
+        "jshint": "^2.8.0"
+    },
+    "dependencies": {
+        "serialport": "^2.0.5"
+    },
+    "scripts": {
+        "start": "node app.js",
+        "watch": "nodemon -w . -e js -x 'npm run build'",
+
+        "build": "npm run build:js",
+        "build:js": "npm run jshint",
+
+        "jshint": "jshint . --exclude-path .gitignore"
+    }
+}
