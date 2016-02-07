@@ -3,7 +3,8 @@ const events = require('events');
 const serialport = require('serialport');
 
 class Arduino extends events.EventEmitter {
-    constructor() {
+    constructor(opts) {
+        super();
         this.setState('disconnected'); // Start the state machine
     }
 
@@ -80,13 +81,13 @@ class Arduino extends events.EventEmitter {
         let obj;
         try {
             obj = JSON.parse(data);
-            // console.log('Data received from Arduino:', data);
+            console.log('Data received from Arduino:', data);
         } catch(err) {
             console.log('Invalid data received from Arduino:', data);
         }
         if (obj) {
+            console.log('Data sent to server:', obj);
             this.emit('data', obj);
-            // console.log('Data sent to server:', obj);
         }
     }
 }
