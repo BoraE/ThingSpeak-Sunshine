@@ -27,7 +27,7 @@ class Server {
         http.get(path, (res) => {
             // console.log(`Got response: ${res.statusCode}`);
             res.on('data', function(chunk) {
-                console.log(`Got data ${chunk}`);
+                // console.log(`Got data ${chunk}`);
             });
         }).on('error', (e) => {
             console.log(`Got error: ${e.message}`);
